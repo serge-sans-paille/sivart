@@ -1,0 +1,16 @@
+# a simple configuration that prints hello from various boxes
+# the script is shared across boxes
+
+.run:
+    script:
+        - printf "hello world\n"
+
+
+ubuntu32:
+    using:
+        - .run
+    box: ubuntu-Lucid32
+ubuntu64:
+    using:
+        - .run
+    box: ubuntu-Lucid64

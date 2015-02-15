@@ -1,0 +1,23 @@
+# describe a first env combination
+.env0:
+    env:
+        - A=1 B=2
+        - A=2 B=1
+# and a second
+.env1:
+    env:
+        - C=3 D=4
+        - C=4 D=3
+        - C=5 D=5
+
+
+# then a single box that uses both envs
+# this will run six tests!
+trusty32:
+    using:
+        - .env0
+        - .env1
+    box: ubuntu/trusty32
+    script:
+        - printf "A=$A B=$B C=$C D=$D\n"
+

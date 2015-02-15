@@ -1,0 +1,19 @@
+# a simple configuration that runs make in various LANG
+# the script is shared across boxes
+
+.lang:
+    env:
+        - LANG=fr
+        - LANG=en
+.ubuntu:
+    using:
+        - .env
+    install:
+        - apt-get install -y make
+    script:
+        - make love || true
+
+ubuntu32:
+    using:
+        - .ubuntu
+    box: ubuntu/trusty32

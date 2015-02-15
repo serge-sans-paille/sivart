@@ -1,0 +1,26 @@
+# share the test script in a facet
+.run:
+    script:
+        - lsb_release -a
+
+# describe the boxes:
+
+# using the vagrant syntax
+trusty32:
+    using:
+        - .run
+    box: ubuntu/trusty32
+
+# using some hardcoded names
+lucid32:
+    using:
+        - .run
+    box: ubuntu-Lucid32
+
+# or using an url
+precise32:
+    using:
+        - .run
+    box: http://files.vagrantup.com/precise32.box
+
+

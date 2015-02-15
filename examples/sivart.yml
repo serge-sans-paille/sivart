@@ -1,0 +1,18 @@
+# a simple configuration that just runs sivart installation on both Python2 and python 3 env
+# uses a simple ubuntu 64 bit
+
+.python:
+    env:
+        - PYTHON=python2.7
+        - PYTHON=python3
+
+ubuntu64:
+    using:
+        - .python
+    box: ubuntu/trusty64
+    install:
+        - apt-get update
+        - apt-get install -y $PYTHON python-pip
+        - pip install sivart
+    script:
+        - python -m sivart --help

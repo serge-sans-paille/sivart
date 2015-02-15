@@ -1,0 +1,6 @@
+# a simple configuration that prints hello from the box
+
+ubuntu32:
+    box: ubuntu/trusty32
+    script:
+        - printf "hello world\n"
