@@ -55,15 +55,19 @@ def run_box_in_env(box_url, env, facets, vagrant_conf, identifier):
 
     test_script = '{}.sh'.format(identifier)
 
-    def get_steps(facet):
+    def get_steps(step, facet):
         steps = facet.get(step, [])
         if isinstance(steps, str):
             steps = [steps]
         return steps
 
     steps = ["set -e"] + list(env)
-    for step in ('install', 'script'):
-        steps = sum([get_steps(facet) for facet in facets], steps)
+    steps = sum([get_steps('install', facet) for facet in facets], steps)
+    scripts = sum([get_steps('script', facet) for facet in facets], ['cd'])
+    if scripts:
+        unquoted = " && ".join(scripts)
+        quoted = '"' + unquoted.replace('"', '"\\""') + '"'
+        steps.append("su vagrant -c " + quoted)
 
     with open(test_script, 'w') as test_script_handle:
         test_script_handle.write("\n".join(steps))

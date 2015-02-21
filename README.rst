@@ -42,6 +42,10 @@ Sivart's input is a YAML file that lists configurations, like this::
             - step0
             - step1
 
+The ``box`` field is a valid vagrant box idetnifier, the ``install`` field
+contains commands run as ``root``, and the ``script`` field contains commands
+run as ``vagrant`` user.
+
 As your number of config grow, you can use facets to store common config
 elements::
 
