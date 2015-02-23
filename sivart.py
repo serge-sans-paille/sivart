@@ -96,7 +96,7 @@ def run_box_in_env(box_url, env, facets, vagrant_conf, identifier):
     shutil.rmtree('.vagrant')
 
 
-def run(config_path, filtering_re, vagrant_conf):
+def run(config_path, filtering_re, subs, vagrant_conf):
     '''
     Run a full sivart configuration described in ``config_path'',
     pruning out boxes whose name does not match ``filtering_re''
@@ -108,6 +108,22 @@ def run(config_path, filtering_re, vagrant_conf):
     errors = 0
     runs = 0
     config = yaml.load(open(config_path))
+
+    # perform substitutions
+    def run_subs(Key, Dict):
+        Value = Dict[Key]
+        if isinstance(Value, str):
+            for sub, sub_value in subs.items():
+                Value = Value.replace('%' + sub, sub_value)
+            Dict[Key] = Value
+        elif isinstance(Value, dict):
+            for K in Value.keys():
+                run_subs(K, Value)
+        elif isinstance(Value, list):
+            for i in range(len(Value)):
+                run_subs(i, Value)
+
+    run_subs(0, [config])
 
     # sanity checks
     for key, setup in config.items():
@@ -153,6 +169,9 @@ if __name__ == '__main__':
                         help="config path")
     parser.add_argument('--filter', metavar='regexp', default=r'.*',
                         help="box filter regular expression")
+    parser.add_argument('-D', '--define', metavar='var=value', action='append',
+                        type=lambda s: s.split('=', 1), default=list(),
+                        help="variable substitution")
 
     args = parser.parse_args()
 
@@ -169,8 +188,11 @@ if __name__ == '__main__':
     end
     '''
 
+    subs = dict(args.define)
+
     errors, runs = run(args.config,
                        re.compile(args.filter),
+                       subs,
                        vagrant_conf)
 
     print("{} out of {} successful runs".format(runs - errors, runs))

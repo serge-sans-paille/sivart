@@ -94,6 +94,17 @@ various compilers::
 this runs ``$CC $CFLAGS hello.c`` for the Cartesian product of the combination
 of ``.env0`` and ``.env1``.
 
+Additionnaly, you can use external variables prefixed by a ``%``, as in::
+
+    .cflags:
+        env:
+            - CC=gcc CXX=g++ CXXFLAGS=%CXXFLAGS CFLAGS=%CFLAGS
+            - CC=clang CXX=clang++ CXXFLAGS=%CXXFLAGS CFLAGS=%CFLAGS
+
+And set this variable from the command line!
+
+
+
 Have a look to ``examples/*`` for more... examples!
 
 Why?
