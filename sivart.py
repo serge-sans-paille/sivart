@@ -55,6 +55,10 @@ def run_box_in_env(box_url, env, facets, vagrant_conf, identifier):
 
     test_script = '{}.sh'.format(identifier)
 
+    customize = sum([facet.get('customize', [""]) for facet in facets], [])
+    box_customization = '\n'.join('p.customize {}'.format(c)
+                                  for c in customize if c)
+
     def get_steps(step, facet):
         steps = facet.get(step, [])
         if isinstance(steps, str):
@@ -79,7 +83,9 @@ def run_box_in_env(box_url, env, facets, vagrant_conf, identifier):
     v = Vagrant(quiet_stdout=False)
 
     with open(vagrantfile, 'w') as vagrant_file:
-        vagrant_file.write(vagrant_conf.format(box=box_url, test=test_script))
+        vagrant_file.write(vagrant_conf.format(box=box_url,
+                                               customize=box_customization,
+                                               test=test_script))
     print '*****', os.getcwd()
     v.up(provision=True)
 
@@ -147,20 +153,19 @@ if __name__ == '__main__':
                         help="config path")
     parser.add_argument('--filter', metavar='regexp', default=r'.*',
                         help="box filter regular expression")
-    parser.add_argument('--vagrant-file', metavar='file', default=None,
-                        help="custom VagrantFile template")
 
     args = parser.parse_args()
 
-    if args.vagrant_file:
-        vagrant_conf = open(args.vagrant_file).read()
-    else:
-        vagrant_conf = '''
+    vagrant_conf = '''
     VAGRANTFILE_API_VERSION = "2"
 
     Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       config.vm.box = "{box}"
       config.vm.provision :shell, path: "{test}"
+      # Providers
+      config.vm.provider :virtualbox do |p|
+        {customize}
+      end
     end
     '''
 
