@@ -96,7 +96,7 @@ def run_box_in_env(box_url, env, facets, vagrant_conf, identifier):
     shutil.rmtree('.vagrant')
 
 
-def run(config_path, filtering_re, subs, vagrant_conf):
+def run(config_path, filtering_re, subs, keep, vagrant_conf):
     '''
     Run a full sivart configuration described in ``config_path'',
     pruning out boxes whose name does not match ``filtering_re''
@@ -158,6 +158,9 @@ def run(config_path, filtering_re, subs, vagrant_conf):
                                vagrant_conf, "{}-{}".format(key, i))
             except Exception:
                 print(traceback.format_exc())
+                if not keep:
+                    v = Vagrant(quiet_stdout=False)
+                    v.destroy()
                 errors += 1
 
     return errors, runs
@@ -172,6 +175,8 @@ if __name__ == '__main__':
     parser.add_argument('-D', '--define', metavar='var=value', action='append',
                         type=lambda s: s.split('=', 1), default=list(),
                         help="variable substitution")
+    parser.add_argument('-k', '--keep', action='store_true',
+                        help="do not destroy faulty vagrant boxes")
 
     args = parser.parse_args()
 
@@ -193,6 +198,7 @@ if __name__ == '__main__':
     errors, runs = run(args.config,
                        re.compile(args.filter),
                        subs,
+                       args.keep,
                        vagrant_conf)
 
     print("{} out of {} successful runs".format(runs - errors, runs))
